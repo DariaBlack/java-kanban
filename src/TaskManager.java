@@ -15,17 +15,17 @@ public class TaskManager {
         nextId = 1;
     }
 
-    List getTasks() {
+    List<Task> getTasks() {
         return new ArrayList<>(tasks.values());
         // Нашла информацию, что если возвращать новым списком значения, то не будет доступа напрямую к внутряшке
         // HashMap, что более безопасно.
     }
 
-    List getEpics() {
+    List<Epic> getEpics() {
         return new ArrayList<>(epics.values());
     }
 
-    List getSubtasks() {
+    List<Subtask> getSubtasks() {
         return new ArrayList<>(subtasks.values());
     }
 
@@ -66,18 +66,34 @@ public class TaskManager {
     void addSubtask(Subtask subtask) {
         subtask.setId(nextId++);
         subtasks.put(subtask.getId(), subtask);
+        Epic epic = epics.get(subtask.getIdEpic());
+        if (epic != null) {
+            epic.getSubtasksInEpic().add(subtask.getId());
+            epic.updateStatus(this);
+        }
     }
 
+
     void updateTask(int id, Task task) {
-        tasks.put(id, task);
+        if (tasks.containsKey(id)) {
+            tasks.put(id, task);
+        }
     }
 
     void updateEpic(int id, Epic epic) {
-        epics.put(id, epic);
+        if (epics.containsKey(id)) {
+            epics.put(id, epic);
+        }
     }
 
     void updateSubtask(int id, Subtask subtask) {
-        subtasks.put(id, subtask);
+        if (subtasks.containsKey(id)) {
+            subtasks.put(id, subtask);
+            Epic epic = epics.get(subtask.getIdEpic());
+            if (epic != null) {
+                epic.updateStatus(this);
+            }
+        }
     }
 
     void deleteTask(int id) {
@@ -92,9 +108,17 @@ public class TaskManager {
         subtasks.remove(id);
     }
 
-    List getSubtasks(int idEpic) {
+    List<Subtask> getSubtasks(int idEpic) {
         Epic epic = epics.get(idEpic);
         if (epic == null) return new ArrayList<>();
-        return epic.getSubtasksInEpic();
+
+        List<Subtask> subtasksList = new ArrayList<>();
+        for (Integer subtaskId : epic.getSubtasksInEpic()) {
+            Subtask subtask = subtasks.get(subtaskId);
+            if (subtask != null) {
+                subtasksList.add(subtask);
+            }
+        }
+        return subtasksList;
     }
 }
