@@ -4,14 +4,13 @@ public class Task {
     private String name; // название задачи, её суть
     private String description; // описание задачи
     private int id; // id задачи
-    private Status status; // статус задачи
+    private final Status status; // статус задачи
 
     public Task(String name, String description, Status status) {
         this.name = name;
         this.description = description;
         this.status = status;
     }
-
 
     public String getName() {
         return name;
