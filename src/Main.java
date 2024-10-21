@@ -39,25 +39,30 @@ public class Main {
         System.out.println("DELETE: " + epic1.getName());
         taskManager.deleteEpic(epic1.getId());
         printAllTasks(taskManager);
+
+        System.out.println("DELETE ALL TASKS:");
+        taskManager.deleteAllTasks();
+        printAllTasks(taskManager);
+
     }
 
     public static void printAllTasks(TaskManager taskManager) {
         System.out.println("Задачи:");
         for (Task t : taskManager.getTasks()) {
-            System.out.println(t.toString()); // Используем toString для вывода
+            System.out.println(t.toString());
         }
 
         System.out.println("Эпики:");
         for (Epic e : taskManager.getEpics()) {
-            System.out.println(e.toString()); // Используем toString для вывода
+            System.out.println(e.toString());
             for (Subtask sub : taskManager.getSubtasks(e.getId())) {
-                System.out.println("--> " + sub.toString()); // Используем toString для вывода
+                System.out.println("--> " + sub.toString());
             }
         }
 
         System.out.println("Подзадачи:");
         for (Subtask sub : taskManager.getSubtasks()) {
-            System.out.println(sub.toString()); // Используем toString для вывода
+            System.out.println(sub.toString());
         }
     }
 }
