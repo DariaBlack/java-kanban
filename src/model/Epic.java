@@ -1,3 +1,6 @@
+package model;
+
+import controllers.TaskManager;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +18,7 @@ public class Epic extends Task {
 
     @Override
     public String toString() {
-        return "Epic{" +
+        return "model.Epic{" +
                 "name='" + getName() + '\'' +
                 ", description='" + getDescription() + '\'' +
                 ", id=" + getId() +
@@ -35,11 +38,12 @@ public class Epic extends Task {
         boolean anyInProgress = false;
 
         for (Subtask subtask : subtasks) {
-            if (subtask.getStatus() != Status.DONE) {
-                allDone = false;
-            }
             if (subtask.getStatus() == Status.IN_PROGRESS) {
                 anyInProgress = true;
+                break;
+            }
+            if (subtask.getStatus() != Status.DONE) {
+                allDone = false;
             }
         }
 
