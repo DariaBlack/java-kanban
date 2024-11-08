@@ -70,5 +70,10 @@ public class Main {
         for (Subtask sub : taskManager.getSubtasks()) {
             System.out.println(sub.toString());
         }
+
+        System.out.println("История:");
+        for (Task task : taskManager.getHistory()) {
+            System.out.println(task);
+        }
     }
 }
