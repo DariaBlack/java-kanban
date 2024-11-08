@@ -1,6 +1,6 @@
 package model;
 
-import controllers.TaskManager;
+import controllers.InMemoryTaskManager;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,7 +27,7 @@ public class Epic extends Task {
                 '}';
     }
 
-    public void updateStatus(TaskManager taskManager) {
+    public void updateStatus(InMemoryTaskManager taskManager) {
         List<Subtask> subtasks = taskManager.getSubtasks(this.getId());
         if (subtasks.isEmpty()) {
             this.setStatus(Status.NEW);
