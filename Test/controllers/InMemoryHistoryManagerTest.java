@@ -25,7 +25,7 @@ class InMemoryHistoryManagerTest {
     // проверка на то, что добавленные в HistoryManager задачи сохраняют предыдущую версию задачи
     @Test
     void shouldKeepPreviousVersionTaskInHistory() {
-        Task updatedTask = new Task ("task1", "description2", Status.DONE);
+        Task updatedTask = new Task("task1", "description2", Status.DONE);
         taskManager.updateTask(task1.getId(), updatedTask);
         historyManager.add(updatedTask);
 
