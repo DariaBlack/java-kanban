@@ -4,6 +4,8 @@ import model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class InMemoryHistoryManagerTest {
@@ -32,5 +34,14 @@ class InMemoryHistoryManagerTest {
         assertEquals(2, historyManager.getHistory().size(), "История должна содержать исходную и обновлённую задачу");
         assertEquals("descriptionTask1", historyManager.getHistory().get(0).getDescription(), "Первая версия задачи должна быть сохранена");
         assertEquals("description2", historyManager.getHistory().get(1).getDescription(), "Обновлённая версия должна быть добавлена в историю");
+    }
+
+    // проверка на то, что история не содержит null-задач
+    @Test
+    void shouldNotBeAddedTaskWithNonExistIDToHistory() {
+        taskManager.getTask(555);
+
+        ArrayList<Task> history = (ArrayList<Task>) taskManager.getHistory();
+        assertFalse(history.contains(null), "История задач не должна содержать null-задач");
     }
 }
