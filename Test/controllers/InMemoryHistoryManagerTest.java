@@ -6,7 +6,9 @@ import model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.awt.*;
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -31,6 +33,7 @@ class InMemoryHistoryManagerTest {
     void shouldKeepPreviousVersionTaskInHistory() {
         Task updatedTask = new Task("task1", "description2", Status.DONE);
         taskManager.updateTask(task1.getId(), updatedTask);
+
         historyManager.add(updatedTask);
 
         assertEquals(2, historyManager.getHistory().size(), "История должна содержать исходную и обновлённую задачу");
@@ -45,5 +48,36 @@ class InMemoryHistoryManagerTest {
 
         ArrayList<Task> history = (ArrayList<Task>) taskManager.getHistory();
         assertFalse(history.contains(null), "История задач не должна содержать null-задач");
+    }
+
+    // проверка на корректность работы двусвязного списка - добавление
+    @Test
+    void shouldBeSizeOfHistory1AfterAddingOneTask() {
+        Task task = new Task("task1", "description1", Status.NEW);
+        task.setId(1);
+
+        historyManager.add(task);
+
+        List<Task> history = historyManager.getHistory();
+        assertEquals(1, history.size());
+        assertEquals(task, history.get(0));
+    }
+
+    // проверка на корректность работы двусвязного списка - удаление и обновление списка после
+    @Test
+    void shouldBeSizeHistory1AfterRemove1TaskFrom2() {
+        Task task1 = new Task("task1", "description1", Status.NEW);
+        task1.setId(1);
+        Task task2 = new Task("task2", "description2", Status.NEW);
+        task2.setId(2);
+
+        historyManager.add(task1);
+        historyManager.add(task2);
+
+        historyManager.remove(task1.getId());
+
+        List<Task> history = historyManager.getHistory();
+        assertEquals(1, history.size());
+        assertEquals(task2, history.get(0));
     }
 }
