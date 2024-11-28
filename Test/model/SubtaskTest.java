@@ -1,7 +1,7 @@
 package model;
 
 import controllers.Managers;
-import controllers.TaskManager;
+import controllers.interfaces.TaskManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
