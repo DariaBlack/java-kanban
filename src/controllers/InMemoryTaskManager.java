@@ -1,5 +1,7 @@
 package controllers;
 
+import controllers.interfaces.HistoryManager;
+import controllers.interfaces.TaskManager;
 import model.*;
 
 import java.util.ArrayList;
@@ -38,12 +40,16 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteAllTasks() {
+        for (Task task : tasks.values()) {
+            historyManager.remove(task.getId());
+        }
         tasks.clear();
     }
 
     @Override
     public void deleteAllEpics() {
         for (Epic epic : epics.values()) {
+            historyManager.remove(epic.getId());
             for (Integer subtaskId : epic.getSubtasksInEpic()) {
                 subtasks.remove(subtaskId);
             }
@@ -53,6 +59,10 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteAllSubtasks() {
+        for (Subtask subtask : subtasks.values()) {
+            historyManager.remove(subtask.getId());
+        }
+
         for (Epic epic : epics.values()) {
             epic.getSubtasksInEpic().clear();
             epic.updateStatus(this);
@@ -132,11 +142,14 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteTask(int id) {
+        historyManager.remove(id);
         Task removedTask = tasks.remove(id);
     }
 
     @Override
     public void deleteEpic(int id) {
+        historyManager.remove(id);
+
         Epic removedEpic = epics.remove(id);
         if (removedEpic != null) {
             for (Integer subtaskId : removedEpic.getSubtasksInEpic()) {
@@ -147,6 +160,8 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteSubtask(int id) {
+        historyManager.remove(id);
+
         Subtask removedSubtask = subtasks.remove(id);
         if (removedSubtask != null) {
             Epic epic = epics.get(removedSubtask.getIdEpic());

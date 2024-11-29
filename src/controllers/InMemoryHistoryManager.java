@@ -1,32 +1,131 @@
 package controllers;
 
+import controllers.interfaces.HistoryManager;
 import model.Task;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class InMemoryHistoryManager implements HistoryManager {
-    private final int maxHistorySize = 10;
-    private final List<Task> history = new ArrayList<>();
+    private final HashMap<Integer, Node> history = new HashMap<>();
+    private Node head;
+    private Node tail;
 
     @Override
     public void add(Task task) {
-        if (task == null) {
+        if (task != null) {
+            remove(task.getId());
+            linkLast(task);
+        }
+    }
+
+    private void linkLast(Task task) {
+        Node node = new Node(task, null, tail);
+
+        if (tail == null) {
+            head = node;
+            tail = node;
+        } else {
+            tail.setNext(node);
+            node.setPrev(tail);
+        }
+
+        tail = node;
+        history.put(task.getId(), node);
+    }
+
+    private ArrayList<Task> getTasks() {
+        ArrayList<Task> tasks = new ArrayList<>();
+        Node currentNode = head;
+
+        while (currentNode != null) {
+            tasks.add(currentNode.getData());
+            currentNode = currentNode.getNext();
+        }
+        return tasks;
+    }
+
+    private void removeNode(Node node) {
+        if (node != null) {
+            Node nextNode = node.getNext();
+            Node prevNode = node.getPrev();
+
+            if (node == head) {
+                head = nextNode;
+            }
+            if (node == tail) {
+                tail = prevNode;
+            }
+            if (prevNode != null) {
+                prevNode.setNext(nextNode);
+            }
+            if (nextNode != null) {
+                nextNode.setPrev(prevNode);
+            }
+
+            node.setNext(null);
+            node.setPrev(null);
+        }
+    }
+
+    @Override
+    public void remove(int id) {
+        if (history.isEmpty()) {
             return;
         }
-        if (history.size() >= maxHistorySize) {
-            history.remove(0);
+
+        Node nodeToRemove = history.remove(id);
+        if (nodeToRemove == null) {
+            return;
         }
-        history.add(task);
+
+        removeNode(nodeToRemove);
     }
 
     @Override
     public List<Task> getHistory() {
-        return new ArrayList<>(history);
+        return new ArrayList<>(getTasks());
     }
 
     @Override
     public String toString() {
         return history.toString();
+    }
+
+    public class Node {
+        private Task data;
+        private Node next;
+        private Node prev;
+
+        public Node(Task data, Node next, Node last) {
+            this.data = data;
+            this.next = next;
+            this.prev = last;
+        }
+
+        public Task getData() {
+            return data;
+        }
+
+        public void setData(Task data) {
+            this.data = data;
+        }
+
+        public Node getNext() {
+            return next;
+        }
+
+        public void setNext(Node next) {
+            this.next = next;
+        }
+
+        public Node getPrev() {
+            return prev;
+        }
+
+        public void setPrev(Node prev) {
+            this.prev = prev;
+        }
     }
 }

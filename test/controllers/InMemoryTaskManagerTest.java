@@ -1,5 +1,6 @@
 package controllers;
 
+import controllers.interfaces.TaskManager;
 import model.*;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,5 +54,55 @@ public class InMemoryTaskManagerTest {
         assertEquals(task1.getName(), addedTask.getName(), "Имя задачи должно остаться неизменным");
         assertEquals(task1.getDescription(), addedTask.getDescription(), "Описание задачи должно остаться неизменным");
         assertEquals(task1.getStatus(), addedTask.getStatus(), "Статус задачи должен остаться неизменным");
+    }
+
+    // проверка на то, что удаляемые подзадачи не должны хранить внутри себя старые id
+    @Test
+    void shouldBeNullWhenSubtaskRemoved() {
+        Epic epic = new Epic("epic1", "description1");
+        epic.setId(1);
+        taskManager.addEpic(epic);
+
+        Subtask subtask = new Subtask("subtask1", "description1", Status.NEW, epic.getId());
+        subtask.setId(1);
+        taskManager.addSubtask(subtask);
+
+        epic.getSubtasksInEpic().add(subtask.getIdEpic());
+        taskManager.deleteSubtask(subtask.getId());
+
+        assertFalse(epic.getSubtasksInEpic().contains(subtask.getId()));
+        assertNull(taskManager.getSubtask(subtask.getId()));
+    }
+
+    // проверка на то, что внутри эпиков не должно оставаться неактуальных id подзадач
+    @Test
+    void shouldBeFalseWhenSubtaskRemovedFromAnEpic() {
+        Epic epic = new Epic("epic1", "description1");
+        epic.setId(1);
+        taskManager.addEpic(epic);
+
+        Subtask subtask = new Subtask("subtask1", "description1", Status.NEW, epic.getId());
+        subtask.setId(1);
+        taskManager.addSubtask(subtask);
+
+        taskManager.deleteSubtask(subtask.getId());
+        assertFalse(epic.getSubtasksInEpic().contains(subtask.getId()));
+    }
+
+    // проверка на корректное изменение данных через сеттеры объектов задач
+    @Test
+    void shouldBeEqualsWhenDataWasChangedViaSetters() {
+        Task task = new Task("task1", "description1", Status.NEW);
+        task.setId(1);
+        taskManager.addTask(task);
+
+        task.setDescription("new description");
+        task.setStatus(Status.IN_PROGRESS);
+
+        taskManager.updateTask(task.getId(), task);
+
+        Task updatedTask = taskManager.getTask(task.getId());
+        assertEquals("new description", updatedTask.getDescription());
+        assertEquals(Status.IN_PROGRESS, updatedTask.getStatus());
     }
 }
