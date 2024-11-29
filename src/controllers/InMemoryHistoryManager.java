@@ -29,9 +29,9 @@ public class InMemoryHistoryManager implements HistoryManager {
         } else {
             tail.setNext(node);
             node.setPrev(tail);
+            tail = node;
         }
 
-        tail = node;
         history.put(task.getId(), node);
     }
 
@@ -75,7 +75,7 @@ public class InMemoryHistoryManager implements HistoryManager {
             return;
         }
 
-        Node nodeToRemove = history.remove(id);
+        Node nodeToRemove = history.get(id);
         if (nodeToRemove == null) {
             return;
         }
@@ -91,41 +91,5 @@ public class InMemoryHistoryManager implements HistoryManager {
     @Override
     public String toString() {
         return history.toString();
-    }
-
-    public class Node {
-        private Task data;
-        private Node next;
-        private Node prev;
-
-        public Node(Task data, Node next, Node last) {
-            this.data = data;
-            this.next = next;
-            this.prev = last;
-        }
-
-        public Task getData() {
-            return data;
-        }
-
-        public void setData(Task data) {
-            this.data = data;
-        }
-
-        public Node getNext() {
-            return next;
-        }
-
-        public void setNext(Node next) {
-            this.next = next;
-        }
-
-        public Node getPrev() {
-            return prev;
-        }
-
-        public void setPrev(Node prev) {
-            this.prev = prev;
-        }
     }
 }
