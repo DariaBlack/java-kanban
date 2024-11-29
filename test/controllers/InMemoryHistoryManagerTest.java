@@ -79,5 +79,6 @@ class InMemoryHistoryManagerTest {
         List<Task> history = historyManager.getHistory();
         assertEquals(1, history.size());
         assertEquals(task2, history.get(0));
+        System.out.println(historyManager.toString());
     }
 }
