@@ -1,13 +1,14 @@
 package controllers;
 
 import controllers.exceptions.ManagerSaveException;
-import controllers.interfaces.TaskManager;
 import model.Epic;
 import model.Subtask;
 import model.Task;
 import java.io.*;
+import java.nio.file.Files;
+import java.util.List;
 
-public class FileBackedTaskManager extends InMemoryTaskManager implements TaskManager {
+public class FileBackedTaskManager extends InMemoryTaskManager {
     private final File file;
 
     public FileBackedTaskManager(File file) {
@@ -40,16 +41,41 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     }
 
     private String epicToString(Epic epic) {
-        return epic.getId() + ",TASK," + epic.getName() + "," + epic.getStatus() + "," + epic.getDescription() + ",";
+        return epic.getId() + ",EPIC," + epic.getName() + "," + epic.getStatus() + "," + epic.getDescription() + ",";
     }
 
     private String subtaskToString(Subtask subtask) {
-        return subtask.getId() + ",TASK," + subtask.getName() + "," + subtask.getStatus() + "," + subtask.getDescription() + "," + subtask.getIdEpic();
+        return subtask.getId() + ",SUBTASK," + subtask.getName() + "," + subtask.getStatus() + ","
+                + subtask.getDescription() + "," + subtask.getIdEpic();
     }
 
     static FileBackedTaskManager loadFromFile(File file) {
-        FileBackedTaskManager fileBackedTaskManager = new FileBackedTaskManager(file); // ещё что-то? чтение бакета?
+        FileBackedTaskManager fileBackedTaskManager = new FileBackedTaskManager(file);
+        fileBackedTaskManager.read();
         return fileBackedTaskManager;
+    }
+
+    private void read() {
+        try {
+            List<String> lines = Files.readString(file.toPath());
+
+            for (int i = 1; i < lines.size(); i++) {
+                String line = lines.get(i);
+
+                Task task = Task.fromString(line);
+                if (task != null) {
+                    if (task instanceof Epic) {
+                        addEpic((Epic) task);
+                    } else if (task instanceof Subtask) {
+                        addSubtask((Subtask) task);
+                    } else if (task instanceof Task) {
+                        addTask((Task) task);
+                    }
+                }
+            }
+        } catch (RuntimeException e) {
+            throw new ManagerSaveException("Ошибка при попытке чтения данных из файла.");
+        }
     }
 
     @Override
