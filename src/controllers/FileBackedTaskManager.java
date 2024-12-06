@@ -1,9 +1,8 @@
 package controllers;
 
 import controllers.exceptions.ManagerSaveException;
-import model.Epic;
-import model.Subtask;
-import model.Task;
+import model.*;
+
 import java.io.*;
 import java.nio.file.Files;
 import java.util.List;
@@ -62,7 +61,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             for (int i = 1; i < lines.size(); i++) {
                 String line = lines.get(i);
 
-                Task task = Task.fromString(line);
+                Task task = fromString(line);
                 if (task != null) {
                     if (task instanceof Epic) {
                         addEpic((Epic) task);
@@ -76,6 +75,21 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         } catch (RuntimeException e) {
             throw new ManagerSaveException("Ошибка при попытке чтения данных из файла.");
         }
+    }
+    
+    static Task fromString(String value) {
+        String[] parts = value.split(",");
+        TypeOfTask typeOfTask = TypeOfTask.valueOf(parts[1]);
+        Task task = null;
+        
+        if (typeOfTask == TypeOfTask.TASK) {
+            task = new Task(parts[2], parts[4], Status.valueOf(parts[3]));
+        } else if (typeOfTask == TypeOfTask.EPIC) {
+            task = new Epic(parts[2], parts[4]);
+        } else if (typeOfTask == TypeOfTask.SUBTASK) {
+            task = new Subtask(parts[2], parts[4], Status.valueOf(parts[3]), Integer.parseInt(parts[5]));
+        }
+        return task;
     }
 
     @Override
