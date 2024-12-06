@@ -19,7 +19,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             fileWriter.write("id,type,name,status,description,epic\n");
 
             for (Task task : getTasks()) {
-                fileWriter.write( taskToString(task) + "\n");
+                fileWriter.write(taskToString(task) + "\n");
             }
 
             for (Epic epic : getEpics()) {
@@ -27,7 +27,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             }
 
             for (Subtask subtask : getSubtasks()) {
-                fileWriter.write(subtaskToString(subtask)+ "\n");
+                fileWriter.write(subtaskToString(subtask) + "\n");
             }
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка при попытке сохранения.");
@@ -75,12 +75,12 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             throw new ManagerSaveException("Ошибка при попытке чтения данных из файла.");
         }
     }
-    
+
     static Task fromString(String value) {
         String[] parts = value.split(",");
         TypeOfTask typeOfTask = TypeOfTask.valueOf(parts[1]);
         Task task = null;
-        
+
         if (typeOfTask == TypeOfTask.TASK) {
             task = new Task(parts[2], parts[4], Status.valueOf(parts[3]));
         } else if (typeOfTask == TypeOfTask.EPIC) {
