@@ -17,6 +17,11 @@ public class Epic extends Task {
     }
 
     @Override
+    public TypeOfTask getType() {
+        return TypeOfTask.EPIC;
+    }
+
+    @Override
     public String toString() {
         return "model.Epic{" +
                 "name='" + getName() + '\'' +

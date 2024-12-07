@@ -47,7 +47,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 + subtask.getDescription() + "," + subtask.getIdEpic();
     }
 
-    static FileBackedTaskManager loadFromFile(File file) {
+    public static FileBackedTaskManager loadFromFile(File file) {
         FileBackedTaskManager fileBackedTaskManager = new FileBackedTaskManager(file);
         fileBackedTaskManager.read();
         return fileBackedTaskManager;
@@ -62,11 +62,12 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
                 Task task = fromString(line);
                 if (task != null) {
-                    if (task instanceof Epic) {
+                    // сделала, спасибо за рекомендацию
+                    if (task.getType() == TypeOfTask.EPIC) {
                         addEpic((Epic) task);
-                    } else if (task instanceof Subtask) {
+                    } else if (task.getType() == TypeOfTask.SUBTASK) {
                         addSubtask((Subtask) task);
-                    } else if (task instanceof Task) {
+                    } else if (task.getType() == TypeOfTask.TASK) {
                         addTask(task);
                     }
                 }
@@ -76,7 +77,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         }
     }
 
-    static Task fromString(String value) {
+    // не заметила, что метод остался без модификатора доступа
+    private static Task fromString(String value) {
         String[] parts = value.split(",");
         TypeOfTask typeOfTask = TypeOfTask.valueOf(parts[1]);
         Task task = null;
