@@ -4,6 +4,7 @@ import controllers.interfaces.HistoryManager;
 import controllers.interfaces.TaskManager;
 import model.*;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
@@ -28,6 +29,25 @@ public class InMemoryTaskManager implements TaskManager {
         subtasks = new HashMap<>();
         nextId = 1;
         historyManager = Managers.getDefaultHistory();
+    }
+
+    public boolean addTaskPriority(Task task) {
+        LocalDateTime startTime = task.getStartTime();
+        LocalDateTime endTime = task.getEndTime();
+
+        for (Task aTask : getPrioritizedTasks()) {
+            LocalDateTime setStartTime = aTask.getStartTime();
+            LocalDateTime setEndTime = aTask.getEndTime();
+
+            if (startTime == null || endTime == null || task.equals(aTask)) {
+                return false;
+            }
+            if (startTime.isAfter(setEndTime) || endTime.isBefore(setStartTime)) {
+                return false;
+            }
+        }
+        sortedTask.add(task);
+        return true;
     }
 
     public ArrayList<Task> getPrioritizedTasks() {
@@ -102,6 +122,8 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void addTask(Task task) {
+        addTaskPriority(task);
+
         task.setId(nextId++);
         tasks.put(task.getId(), task);
     }
@@ -114,6 +136,8 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void addSubtask(Subtask subtask) {
+        addTaskPriority(subtask);
+
         Epic epic = epics.get(subtask.getIdEpic());
 
         if (epic == null) {
@@ -128,6 +152,8 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateTask(int id, Task task) {
+        addTaskPriority(task);
+
         if (tasks.containsKey(id)) {
             tasks.put(id, task);
         }
@@ -142,6 +168,8 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateSubtask(int id, Subtask subtask) {
+        addTaskPriority(subtask);
+
         if (subtasks.containsKey(id)) {
             subtasks.put(id, subtask);
             Epic epic = epics.get(subtask.getIdEpic());
