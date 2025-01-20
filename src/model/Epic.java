@@ -1,15 +1,22 @@
 package model;
 
 import controllers.InMemoryTaskManager;
+
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Epic extends Task {
     private ArrayList<Integer> subtasksInEpic;
+    private LocalDateTime endTime;
 
     public Epic(String name, String description) {
         super(name, description, Status.NEW);
         subtasksInEpic = new ArrayList<>();
+    }
+
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
     }
 
     public ArrayList<Integer> getSubtasksInEpic() {
