@@ -4,9 +4,7 @@ import controllers.interfaces.HistoryManager;
 import controllers.interfaces.TaskManager;
 import model.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
     private HashMap<Integer, Task> tasks;
@@ -14,6 +12,15 @@ public class InMemoryTaskManager implements TaskManager {
     private HashMap<Integer, Subtask> subtasks;
     private int nextId;
     private HistoryManager historyManager;
+    private final Set<Task> sortedTask = new TreeSet<>((time1, time2) -> {
+        if (time1.getStartTime() == null) {
+            if (time2.getStartTime() == null) {
+                return 0;
+            }
+            return 1;
+        }
+        return time1.getStartTime().compareTo(time2.getStartTime());
+    });
 
     public InMemoryTaskManager() {
         tasks = new HashMap<>();
@@ -21,6 +28,10 @@ public class InMemoryTaskManager implements TaskManager {
         subtasks = new HashMap<>();
         nextId = 1;
         historyManager = Managers.getDefaultHistory();
+    }
+
+    public ArrayList<Task> getPrioritizedTasks() {
+        return new ArrayList<>(sortedTask);
     }
 
     @Override
