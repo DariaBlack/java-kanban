@@ -46,7 +46,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     private String subtaskToString(Subtask subtask) {
         return subtask.getId() + ",SUBTASK," + subtask.getName() + "," + subtask.getStatus() + ","
-                + subtask.getDescription() + "," + subtask.getIdEpic() + subtask.getDuration() + ","
+                + subtask.getDescription() + "," + subtask.getIdEpic() + "," + subtask.getDuration() + ","
                 + subtask.getStartTime() + ",";
     }
 
