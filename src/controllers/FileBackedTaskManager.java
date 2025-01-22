@@ -87,8 +87,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
         if (typeOfTask == TypeOfTask.TASK) {
             task = new Task(parts[2], parts[4], Status.valueOf(parts[3]));
-            task.setDuration(Integer.parseInt(parts[6]));
-            task.setStartTime(LocalDateTime.parse(parts[7]));
+            task.setDuration(Integer.parseInt(parts[5]));
+            task.setStartTime(LocalDateTime.parse(parts[6]));
         } else if (typeOfTask == TypeOfTask.EPIC) {
             task = new Epic(parts[2], parts[4]);
         } else if (typeOfTask == TypeOfTask.SUBTASK) {

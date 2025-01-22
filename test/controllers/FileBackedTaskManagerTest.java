@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -39,10 +40,14 @@ public class FileBackedTaskManagerTest {
     @Test
     void saveAndLoadMultipleTasks() {
         Task task = new Task("task1", "descriptionTask1", Status.NEW);
+        task.setDuration(20);
+        task.setStartTime(LocalDateTime.of(2000, 1, 1, 0, 0, 0));
         fileBackedTaskManager.addTask(task);
         Epic epic = new Epic("epic1", "descriptionEpic1");
         fileBackedTaskManager.addEpic(epic);
         Subtask subtask = new Subtask("subtask1", "descriptionSubtask1", Status.NEW, epic.getId());
+        subtask.setDuration(60);
+        subtask.setStartTime(LocalDateTime.of(2000, 1, 1, 0, 0, 0));
         fileBackedTaskManager.addSubtask(subtask);
 
         fileBackedTaskManager.save();
