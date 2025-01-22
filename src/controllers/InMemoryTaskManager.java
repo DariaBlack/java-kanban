@@ -46,17 +46,18 @@ public class InMemoryTaskManager implements TaskManager {
             return false;
         }
 
-        for (Task aTask : getPrioritizedTasks()) {
-            LocalDateTime setStartTime = aTask.getStartTime();
-            LocalDateTime setEndTime = aTask.getEndTime();
+        boolean isOverlapping = getPrioritizedTasks().stream()
+                        .anyMatch(aTask -> {
+                            LocalDateTime setStartTime = aTask.getStartTime();
+                            LocalDateTime setEndTime = aTask.getEndTime();
 
-            if (startTime == null || endTime == null || task.equals(aTask)) {
-                return false;
-            }
-            if (startTime.isAfter(setEndTime) || endTime.isBefore(setStartTime)) {
-                return false;
-            }
+                            return !(startTime.isAfter(setEndTime) || endTime.isBefore(setStartTime));
+                        });
+
+        if (isOverlapping) {
+            return false;
         }
+
         sortedTask.add(task);
         return true;
     }
