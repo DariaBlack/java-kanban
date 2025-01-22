@@ -5,6 +5,7 @@ import model.*;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
@@ -16,7 +17,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     public void save() {
         try (Writer fileWriter = new FileWriter(file)) {
-            fileWriter.write("id,type,name,status,description,epic\n");
+            fileWriter.write("id,type,name,status,description,epic,duration,startTime\n");
 
             for (Task task : getTasks()) {
                 fileWriter.write(taskToString(task) + "\n");
@@ -35,7 +36,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     private String taskToString(Task task) {
-        return task.getId() + ",TASK," + task.getName() + "," + task.getStatus() + "," + task.getDescription() + ",";
+        return task.getId() + ",TASK," + task.getName() + "," + task.getStatus() + "," + task.getDescription() + ","
+                + task.getDuration() + "," + task.getStartTime() + ",";
     }
 
     private String epicToString(Epic epic) {
@@ -44,7 +46,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     private String subtaskToString(Subtask subtask) {
         return subtask.getId() + ",SUBTASK," + subtask.getName() + "," + subtask.getStatus() + ","
-                + subtask.getDescription() + "," + subtask.getIdEpic();
+                + subtask.getDescription() + "," + subtask.getIdEpic() + subtask.getDuration() + ","
+                + subtask.getStartTime() + ",";
     }
 
     public static FileBackedTaskManager loadFromFile(File file) {
@@ -85,10 +88,14 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
         if (typeOfTask == TypeOfTask.TASK) {
             task = new Task(parts[2], parts[4], Status.valueOf(parts[3]));
+            task.setDuration(Integer.parseInt(parts[6]));
+            task.setStartTime(LocalDateTime.parse(parts[7]));
         } else if (typeOfTask == TypeOfTask.EPIC) {
             task = new Epic(parts[2], parts[4]);
         } else if (typeOfTask == TypeOfTask.SUBTASK) {
             task = new Subtask(parts[2], parts[4], Status.valueOf(parts[3]), Integer.parseInt(parts[5]));
+            task.setDuration(Integer.parseInt(parts[6]));
+            task.setStartTime(LocalDateTime.parse(parts[7]));
         }
         return task;
     }
