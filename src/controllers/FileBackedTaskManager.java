@@ -80,7 +80,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         }
     }
 
-    // не заметила, что метод остался без модификатора доступа
     private static Task fromString(String value) {
         String[] parts = value.split(",");
         TypeOfTask typeOfTask = TypeOfTask.valueOf(parts[1]);
