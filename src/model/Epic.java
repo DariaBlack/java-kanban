@@ -23,6 +23,44 @@ public class Epic extends Task {
         return subtasksInEpic;
     }
 
+    public int calculateDuration(InMemoryTaskManager taskManager) {
+        int totalDuration = 0;
+
+        for (Integer subtaskId : subtasksInEpic) {
+            Subtask subtask = (Subtask) taskManager.getSubtask(subtaskId);
+            totalDuration += subtask.getDuration();
+        }
+        return totalDuration;
+    }
+
+    public LocalDateTime calculateStartTime(InMemoryTaskManager taskManager) {
+        LocalDateTime earliestStartTime = null;
+
+        for (Integer subtaskId : subtasksInEpic) {
+            Subtask subtask = (Subtask) taskManager.getSubtask(subtaskId);
+            LocalDateTime subtaskStartTime = subtask.getStartTime();
+
+            if (earliestStartTime == null || (subtaskStartTime != null && subtaskStartTime.isBefore(earliestStartTime))) {
+                earliestStartTime = subtaskStartTime;
+            }
+        }
+        return earliestStartTime;
+    }
+
+    public LocalDateTime calculateEndTime(InMemoryTaskManager taskManager) {
+        LocalDateTime latestEndTime = null;
+
+        for (Integer subtaskId : subtasksInEpic) {
+            Subtask subtask = (Subtask) taskManager.getSubtask(subtaskId);
+            LocalDateTime subtaskEndTime = subtask.getEndTime();
+
+            if (latestEndTime == null || (subtaskEndTime != null && subtaskEndTime.isAfter(latestEndTime))) {
+                latestEndTime = subtaskEndTime;
+            }
+        }
+        return latestEndTime;
+    }
+
     @Override
     public TypeOfTask getType() {
         return TypeOfTask.EPIC;
@@ -66,5 +104,9 @@ public class Epic extends Task {
         } else {
             this.setStatus(Status.NEW);
         }
+
+        this.setDuration(calculateDuration(taskManager));
+        this.setStartTime(calculateStartTime(taskManager));
+        this.setEndTime(calculateEndTime(taskManager));
     }
 }

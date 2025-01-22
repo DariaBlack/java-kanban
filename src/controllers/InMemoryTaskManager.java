@@ -35,6 +35,16 @@ public class InMemoryTaskManager implements TaskManager {
         LocalDateTime startTime = task.getStartTime();
         LocalDateTime endTime = task.getEndTime();
 
+        /*
+        "Дата начала задачи по каким-то причинам может быть не задана. Тогда при добавлении её не следует учитывать в
+        списке задач и подзадач, отсортированных по времени начала. Такая задача не влияет на приоритет других, а при
+        попадании в список может сломать логику работы компаратора." - я поняла эту часть задания так, что задачи без
+        даты начала вообще в список остортированных по времени задач попадать не должны.
+         */
+        if (startTime == null) {
+            return false;
+        }
+
         for (Task aTask : getPrioritizedTasks()) {
             LocalDateTime setStartTime = aTask.getStartTime();
             LocalDateTime setEndTime = aTask.getEndTime();
