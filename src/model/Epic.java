@@ -45,7 +45,7 @@ public class Epic extends Task {
                 .map(subtaskId -> (Subtask) taskManager.getSubtask(subtaskId))
                 .map(Subtask::getEndTime)
                 .filter(Objects::nonNull)
-                .min(LocalDateTime::compareTo)
+                .max(LocalDateTime::compareTo)
                 .orElse(null);
     }
 
