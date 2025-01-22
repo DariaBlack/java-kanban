@@ -6,6 +6,7 @@ import model.*;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class InMemoryTaskManager implements TaskManager {
     private HashMap<Integer, Task> tasks;
@@ -227,14 +228,10 @@ public class InMemoryTaskManager implements TaskManager {
         Epic epic = epics.get(idEpic);
         if (epic == null) return new ArrayList<>();
 
-        List<Subtask> subtasksList = new ArrayList<>();
-        for (Integer subtaskId : epic.getSubtasksInEpic()) {
-            Subtask subtask = subtasks.get(subtaskId);
-            if (subtask != null) {
-                subtasksList.add(subtask);
-            }
-        }
-        return subtasksList;
+        return epic.getSubtasksInEpic().stream()
+                .map(subtasks::get)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     @Override

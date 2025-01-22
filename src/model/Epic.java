@@ -5,6 +5,7 @@ import controllers.InMemoryTaskManager;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Epic extends Task {
     private ArrayList<Integer> subtasksInEpic;
@@ -24,41 +25,28 @@ public class Epic extends Task {
     }
 
     public int calculateDuration(InMemoryTaskManager taskManager) {
-        int totalDuration = 0;
-
-        for (Integer subtaskId : subtasksInEpic) {
-            Subtask subtask = (Subtask) taskManager.getSubtask(subtaskId);
-            totalDuration += subtask.getDuration();
-        }
-        return totalDuration;
+        return subtasksInEpic.stream()
+                .map(subtaskId -> (Subtask) taskManager.getSubtask(subtaskId))
+                .mapToInt(Subtask::getDuration)
+                .sum();
     }
 
     public LocalDateTime calculateStartTime(InMemoryTaskManager taskManager) {
-        LocalDateTime earliestStartTime = null;
-
-        for (Integer subtaskId : subtasksInEpic) {
-            Subtask subtask = (Subtask) taskManager.getSubtask(subtaskId);
-            LocalDateTime subtaskStartTime = subtask.getStartTime();
-
-            if (earliestStartTime == null || (subtaskStartTime != null && subtaskStartTime.isBefore(earliestStartTime))) {
-                earliestStartTime = subtaskStartTime;
-            }
-        }
-        return earliestStartTime;
+        return subtasksInEpic.stream()
+                .map(subtaskId -> (Subtask) taskManager.getSubtask(subtaskId))
+                .map(Subtask::getStartTime)
+                .filter(Objects::nonNull)
+                .min(LocalDateTime::compareTo)
+                .orElse(null);
     }
 
     public LocalDateTime calculateEndTime(InMemoryTaskManager taskManager) {
-        LocalDateTime latestEndTime = null;
-
-        for (Integer subtaskId : subtasksInEpic) {
-            Subtask subtask = (Subtask) taskManager.getSubtask(subtaskId);
-            LocalDateTime subtaskEndTime = subtask.getEndTime();
-
-            if (latestEndTime == null || (subtaskEndTime != null && subtaskEndTime.isAfter(latestEndTime))) {
-                latestEndTime = subtaskEndTime;
-            }
-        }
-        return latestEndTime;
+        return subtasksInEpic.stream()
+                .map(subtaskId -> (Subtask) taskManager.getSubtask(subtaskId))
+                .map(Subtask::getEndTime)
+                .filter(Objects::nonNull)
+                .min(LocalDateTime::compareTo)
+                .orElse(null);
     }
 
     @Override
@@ -84,18 +72,10 @@ public class Epic extends Task {
             return;
         }
 
-        boolean allDone = true;
-        boolean anyInProgress = false;
-
-        for (Subtask subtask : subtasks) {
-            if (subtask.getStatus() == Status.IN_PROGRESS) {
-                anyInProgress = true;
-                break;
-            }
-            if (subtask.getStatus() != Status.DONE) {
-                allDone = false;
-            }
-        }
+        boolean allDone = subtasks.stream()
+                .allMatch(subtask -> subtask.getStatus() == Status.DONE);
+        boolean anyInProgress = subtasks.stream()
+                .anyMatch(subtask -> subtask.getStatus() == Status.IN_PROGRESS);
 
         if (allDone) {
             this.setStatus(Status.DONE);
