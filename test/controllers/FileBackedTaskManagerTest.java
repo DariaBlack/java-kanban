@@ -1,5 +1,6 @@
 package controllers;
 
+import controllers.exceptions.ManagerSaveException;
 import model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -65,5 +66,31 @@ public class FileBackedTaskManagerTest {
         List<Subtask> subtasks = load.getSubtasks();
         assertEquals(1, subtasks.size(), "Должна быть 1 подзадача.");
         assertEquals(subtask, subtasks.get(0), "Сохранённая подзадача не та же, что и была загружена.");
+    }
+
+    // Тест на исключение при попытке загрузить несуществующий файл
+    @Test
+    void shouldThrowIOExceptionWhenFileDoesNotExist() {
+        File nonExistentFile = new File("non_existent_file.csv");
+        assertThrows(ManagerSaveException.class, () -> {
+            FileBackedTaskManager.loadFromFile(nonExistentFile);
+        }, "Загрузка несуществующего файла должна вызвать IOException");
+    }
+
+    // Тест на успешную запись в файл
+    @Test
+    void shouldNotThrowIOExceptionWhenFileIsWritable() throws IOException {
+        assertDoesNotThrow(() -> {
+            fileBackedTaskManager.save();
+        }, "Запись в файл должна быть успешной");
+    }
+
+    // Тест на успешное чтение из существующего файла
+    @Test
+    void shouldNotThrowIOExceptionWhenFileExists() throws IOException {
+        fileBackedTaskManager.save();
+        assertDoesNotThrow(() -> {
+            FileBackedTaskManager.loadFromFile(file);
+        }, "Чтение существующего файла не должно вызывать исключений");
     }
 }
