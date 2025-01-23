@@ -48,7 +48,7 @@ public class FileBackedTaskManagerTest {
         fileBackedTaskManager.addEpic(epic);
         Subtask subtask = new Subtask("subtask1", "descriptionSubtask1", Status.NEW, epic.getId());
         subtask.setDuration(60);
-        subtask.setStartTime(LocalDateTime.of(2000, 1, 1, 0, 0, 0));
+        subtask.setStartTime(LocalDateTime.of(2000, 1, 1, 1, 0, 0));
         fileBackedTaskManager.addSubtask(subtask);
 
         fileBackedTaskManager.save();

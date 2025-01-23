@@ -63,6 +63,9 @@ public class Epic extends Task {
     public void updateStatus(List<Subtask> subtasks) {
         if (subtasks.isEmpty()) {
             this.setStatus(Status.NEW);
+            this.setStartTime(null);
+            this.setEndTime(null);
+            this.setDuration(0);
             return;
         }
 

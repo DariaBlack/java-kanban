@@ -128,7 +128,6 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void addTask(Task task) {
-        //Прервать метод если есть пересечение по времени. Можно выкинуть исключение
         if (addTaskPriority(task)) {
             task.setId(nextId++);
             tasks.put(task.getId(), task);
