@@ -1,7 +1,5 @@
 package model;
 
-import controllers.InMemoryTaskManager;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,25 +22,22 @@ public class Epic extends Task {
         return subtasksInEpic;
     }
 
-    public int calculateDuration(InMemoryTaskManager taskManager) {
-        return subtasksInEpic.stream()
-                .map(subtaskId -> (Subtask) taskManager.getSubtask(subtaskId))
+    public int calculateDuration(List<Subtask> subtasks) {
+        return subtasks.stream()
                 .mapToInt(Subtask::getDuration)
                 .sum();
     }
 
-    public LocalDateTime calculateStartTime(InMemoryTaskManager taskManager) {
-        return subtasksInEpic.stream()
-                .map(subtaskId -> (Subtask) taskManager.getSubtask(subtaskId))
+    public LocalDateTime calculateStartTime(List<Subtask> subtasks) {
+        return subtasks.stream()
                 .map(Subtask::getStartTime)
                 .filter(Objects::nonNull)
                 .min(LocalDateTime::compareTo)
                 .orElse(null);
     }
 
-    public LocalDateTime calculateEndTime(InMemoryTaskManager taskManager) {
-        return subtasksInEpic.stream()
-                .map(subtaskId -> (Subtask) taskManager.getSubtask(subtaskId))
+    public LocalDateTime calculateEndTime(List<Subtask> subtasks) {
+        return subtasks.stream()
                 .map(Subtask::getEndTime)
                 .filter(Objects::nonNull)
                 .max(LocalDateTime::compareTo)
@@ -65,8 +60,7 @@ public class Epic extends Task {
                 '}';
     }
 
-    public void updateStatus(InMemoryTaskManager taskManager) {
-        List<Subtask> subtasks = taskManager.getSubtasks(this.getId());
+    public void updateStatus(List<Subtask> subtasks) {
         if (subtasks.isEmpty()) {
             this.setStatus(Status.NEW);
             return;
@@ -91,8 +85,8 @@ public class Epic extends Task {
             this.setStatus(Status.NEW);
         }
 
-        this.setDuration(calculateDuration(taskManager));
-        this.setStartTime(calculateStartTime(taskManager));
-        this.setEndTime(calculateEndTime(taskManager));
+        this.setDuration(calculateDuration(subtasks));
+        this.setStartTime(calculateStartTime(subtasks));
+        this.setEndTime(calculateEndTime(subtasks));
     }
 }

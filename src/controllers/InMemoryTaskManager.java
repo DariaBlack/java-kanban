@@ -2,6 +2,7 @@ package controllers;
 
 import controllers.interfaces.HistoryManager;
 import controllers.interfaces.TaskManager;
+import controllers.exceptions.TimeOverlapException;
 import model.*;
 
 import java.time.LocalDateTime;
@@ -36,12 +37,6 @@ public class InMemoryTaskManager implements TaskManager {
         LocalDateTime startTime = task.getStartTime();
         LocalDateTime endTime = task.getEndTime();
 
-        /*
-        "Дата начала задачи по каким-то причинам может быть не задана. Тогда при добавлении её не следует учитывать в
-        списке задач и подзадач, отсортированных по времени начала. Такая задача не влияет на приоритет других, а при
-        попадании в список может сломать логику работы компаратора." - я поняла эту часть задания так, что задачи без
-        даты начала вообще в список отсортированных по времени задач попадать не должны.
-         */
         if (startTime == null) {
             return false;
         }
@@ -55,10 +50,9 @@ public class InMemoryTaskManager implements TaskManager {
                 });
 
         if (isOverlapping) {
-            return false;
+            throw new TimeOverlapException("Время задачи пересекается с существующей задачей");
         }
 
-        sortedTask.add(task);
         return true;
     }
 
@@ -87,7 +81,6 @@ public class InMemoryTaskManager implements TaskManager {
             historyManager.remove(task.getId());
         }
         tasks.clear();
-        sortedTask.clear();
     }
 
     @Override
@@ -99,7 +92,6 @@ public class InMemoryTaskManager implements TaskManager {
             }
         }
         epics.clear();
-        sortedTask.clear();
     }
 
     @Override
@@ -110,11 +102,10 @@ public class InMemoryTaskManager implements TaskManager {
 
         for (Epic epic : epics.values()) {
             epic.getSubtasksInEpic().clear();
-            epic.updateStatus(this);
+            epic.updateStatus(getSubtasks(epic.getId()));
 
         }
         subtasks.clear();
-        sortedTask.clear();
     }
 
     @Override
@@ -137,10 +128,12 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void addTask(Task task) {
-        addTaskPriority(task);
-
-        task.setId(nextId++);
-        tasks.put(task.getId(), task);
+        //Прервать метод если есть пересечение по времени. Можно выкинуть исключение
+        if (addTaskPriority(task)) {
+            task.setId(nextId++);
+            tasks.put(task.getId(), task);
+            sortedTask.add(task);
+        }
     }
 
     @Override
@@ -151,18 +144,19 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void addSubtask(Subtask subtask) {
-        addTaskPriority(subtask);
+        if (addTaskPriority(subtask)) {
+            Epic epic = epics.get(subtask.getIdEpic());
 
-        Epic epic = epics.get(subtask.getIdEpic());
+            if (epic == null) {
+                return;
+            }
 
-        if (epic == null) {
-            return;
+            subtask.setId(nextId++);
+            subtasks.put(subtask.getId(), subtask);
+            sortedTask.add(subtask);
+            epic.getSubtasksInEpic().add(subtask.getId());
+            epic.updateStatus(getSubtasks(epic.getId()));
         }
-        subtask.setId(nextId++);
-        subtasks.put(subtask.getId(), subtask);
-
-        epic.getSubtasksInEpic().add(subtask.getId());
-        epic.updateStatus(this);
     }
 
     @Override
@@ -189,7 +183,7 @@ public class InMemoryTaskManager implements TaskManager {
             subtasks.put(id, subtask);
             Epic epic = epics.get(subtask.getIdEpic());
             if (epic != null) {
-                epic.updateStatus(this);
+                epic.updateStatus(getSubtasks(epic.getId()));
             }
         }
     }
@@ -228,7 +222,7 @@ public class InMemoryTaskManager implements TaskManager {
             Epic epic = epics.get(removedSubtask.getIdEpic());
             if (epic != null) {
                 epic.getSubtasksInEpic().remove((Integer) id);
-                epic.updateStatus(this);
+                epic.updateStatus(getSubtasks(epic.getId()));
             }
         }
     }
