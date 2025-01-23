@@ -105,4 +105,22 @@ public class EpicTest {
 
         assertEquals(Status.IN_PROGRESS, epic.getStatus(), "Статус эпика должен быть IN_PROGRESS, если хотя бы одна подзадача в процессе");
     }
+
+    // Статус эпика, если нет подзадач
+    @Test
+    void shouldNotChangeEpicStatusIfNoSubtasks() {
+        taskManager.addEpic(epic);
+
+        epic.updateStatus((InMemoryTaskManager) taskManager);
+        assertEquals(Status.NEW, epic.getStatus(), "Статус эпика должен быть NEW, если нет подзадач");
+    }
+
+    // Проверка расчёта времени и продолжительности эпика
+    @Test
+    void shouldCalculateEpicTimeForNoSubtasks() {
+        taskManager.addEpic(epic);
+
+        assertNull(epic.getStartTime(), "Время начала эпика должно быть null, если нет подзадач");
+        assertNull(epic.getEndTime(), "Время окончания эпика должно быть null, если нет подзадач");
+    }
 }

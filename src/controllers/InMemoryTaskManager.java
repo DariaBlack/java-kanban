@@ -233,7 +233,6 @@ public class InMemoryTaskManager implements TaskManager {
         }
     }
 
-
     @Override
     public List<Subtask> getSubtasks(int idEpic) {
         Epic epic = epics.get(idEpic);
