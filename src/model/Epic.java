@@ -76,8 +76,14 @@ public class Epic extends Task {
                 .allMatch(subtask -> subtask.getStatus() == Status.DONE);
         boolean anyInProgress = subtasks.stream()
                 .anyMatch(subtask -> subtask.getStatus() == Status.IN_PROGRESS);
+        boolean hasNew = subtasks.stream()
+                .anyMatch(subtask -> subtask.getStatus() == Status.NEW);
+        boolean hasDone = subtasks.stream()
+                .anyMatch(subtask -> subtask.getStatus() == Status.DONE);
 
-        if (allDone) {
+        if (hasNew && hasDone) {
+            this.setStatus(Status.IN_PROGRESS);
+        } else if (allDone) {
             this.setStatus(Status.DONE);
         } else if (anyInProgress) {
             this.setStatus(Status.IN_PROGRESS);
