@@ -1,19 +1,47 @@
 package model;
 
-import controllers.InMemoryTaskManager;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Epic extends Task {
     private ArrayList<Integer> subtasksInEpic;
+    private LocalDateTime endTime;
 
     public Epic(String name, String description) {
         super(name, description, Status.NEW);
         subtasksInEpic = new ArrayList<>();
     }
 
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
+    }
+
     public ArrayList<Integer> getSubtasksInEpic() {
         return subtasksInEpic;
+    }
+
+    public int calculateDuration(List<Subtask> subtasks) {
+        return subtasks.stream()
+                .mapToInt(Subtask::getDuration)
+                .sum();
+    }
+
+    public LocalDateTime calculateStartTime(List<Subtask> subtasks) {
+        return subtasks.stream()
+                .map(Subtask::getStartTime)
+                .filter(Objects::nonNull)
+                .min(LocalDateTime::compareTo)
+                .orElse(null);
+    }
+
+    public LocalDateTime calculateEndTime(List<Subtask> subtasks) {
+        return subtasks.stream()
+                .map(Subtask::getEndTime)
+                .filter(Objects::nonNull)
+                .max(LocalDateTime::compareTo)
+                .orElse(null);
     }
 
     @Override
@@ -32,32 +60,36 @@ public class Epic extends Task {
                 '}';
     }
 
-    public void updateStatus(InMemoryTaskManager taskManager) {
-        List<Subtask> subtasks = taskManager.getSubtasks(this.getId());
+    public void updateStatus(List<Subtask> subtasks) {
         if (subtasks.isEmpty()) {
             this.setStatus(Status.NEW);
+            this.setStartTime(null);
+            this.setEndTime(null);
+            this.setDuration(0);
             return;
         }
 
-        boolean allDone = true;
-        boolean anyInProgress = false;
+        boolean allDone = subtasks.stream()
+                .allMatch(subtask -> subtask.getStatus() == Status.DONE);
+        boolean anyInProgress = subtasks.stream()
+                .anyMatch(subtask -> subtask.getStatus() == Status.IN_PROGRESS);
+        boolean hasNew = subtasks.stream()
+                .anyMatch(subtask -> subtask.getStatus() == Status.NEW);
+        boolean hasDone = subtasks.stream()
+                .anyMatch(subtask -> subtask.getStatus() == Status.DONE);
 
-        for (Subtask subtask : subtasks) {
-            if (subtask.getStatus() == Status.IN_PROGRESS) {
-                anyInProgress = true;
-                break;
-            }
-            if (subtask.getStatus() != Status.DONE) {
-                allDone = false;
-            }
-        }
-
-        if (allDone) {
+        if (hasNew && hasDone) {
+            this.setStatus(Status.IN_PROGRESS);
+        } else if (allDone) {
             this.setStatus(Status.DONE);
         } else if (anyInProgress) {
             this.setStatus(Status.IN_PROGRESS);
         } else {
             this.setStatus(Status.NEW);
         }
+
+        this.setDuration(calculateDuration(subtasks));
+        this.setStartTime(calculateStartTime(subtasks));
+        this.setEndTime(calculateEndTime(subtasks));
     }
 }

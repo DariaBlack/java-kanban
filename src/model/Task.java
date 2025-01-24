@@ -1,12 +1,15 @@
 package model;
 
 import java.util.Objects;
+import java.time.LocalDateTime;
 
 public class Task {
     private String name; // название задачи, её суть
     private String description; // описание задачи
     private int id; // id задачи
     private Status status; // статус задачи
+    private int duration; // продолжительность задачи в минутах
+    private LocalDateTime startTime; // дата и время начала выполнения
 
     public Task(String name, String description, Status status) {
         this.name = name;
@@ -48,6 +51,29 @@ public class Task {
 
     public TypeOfTask getType() {
         return TypeOfTask.TASK;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalDateTime getEndTime() {
+        if (startTime != null) {
+            return startTime.plusMinutes(duration);
+        }
+        return null;
     }
 
     @Override

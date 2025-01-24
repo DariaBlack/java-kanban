@@ -1,5 +1,6 @@
 package controllers;
 
+import controllers.exceptions.ManagerSaveException;
 import model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -39,10 +41,14 @@ public class FileBackedTaskManagerTest {
     @Test
     void saveAndLoadMultipleTasks() {
         Task task = new Task("task1", "descriptionTask1", Status.NEW);
+        task.setDuration(20);
+        task.setStartTime(LocalDateTime.of(2000, 1, 1, 0, 0, 0));
         fileBackedTaskManager.addTask(task);
         Epic epic = new Epic("epic1", "descriptionEpic1");
         fileBackedTaskManager.addEpic(epic);
         Subtask subtask = new Subtask("subtask1", "descriptionSubtask1", Status.NEW, epic.getId());
+        subtask.setDuration(60);
+        subtask.setStartTime(LocalDateTime.of(2000, 1, 1, 1, 0, 0));
         fileBackedTaskManager.addSubtask(subtask);
 
         fileBackedTaskManager.save();
@@ -60,5 +66,31 @@ public class FileBackedTaskManagerTest {
         List<Subtask> subtasks = load.getSubtasks();
         assertEquals(1, subtasks.size(), "Должна быть 1 подзадача.");
         assertEquals(subtask, subtasks.get(0), "Сохранённая подзадача не та же, что и была загружена.");
+    }
+
+    // Тест на исключение при попытке загрузить несуществующий файл
+    @Test
+    void shouldThrowIOExceptionWhenFileDoesNotExist() {
+        File nonExistentFile = new File("non_existent_file.csv");
+        assertThrows(ManagerSaveException.class, () -> {
+            FileBackedTaskManager.loadFromFile(nonExistentFile);
+        }, "Загрузка несуществующего файла должна вызвать IOException");
+    }
+
+    // Тест на успешную запись в файл
+    @Test
+    void shouldNotThrowIOExceptionWhenFileIsWritable() throws IOException {
+        assertDoesNotThrow(() -> {
+            fileBackedTaskManager.save();
+        }, "Запись в файл должна быть успешной");
+    }
+
+    // Тест на успешное чтение из существующего файла
+    @Test
+    void shouldNotThrowIOExceptionWhenFileExists() throws IOException {
+        fileBackedTaskManager.save();
+        assertDoesNotThrow(() -> {
+            FileBackedTaskManager.loadFromFile(file);
+        }, "Чтение существующего файла не должно вызывать исключений");
     }
 }
