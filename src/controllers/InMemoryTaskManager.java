@@ -1,5 +1,6 @@
 package controllers;
 
+import controllers.exceptions.NotFoundException;
 import controllers.interfaces.HistoryManager;
 import controllers.interfaces.TaskManager;
 import controllers.exceptions.TimeOverlapException;
@@ -110,18 +111,36 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task getTask(int id) {
+        Task task = tasks.get(id);
+
+        if (task == null) {
+            throw new NotFoundException("Задача с ID " + id + " не найдена");
+        }
+
         historyManager.add(tasks.get(id));
         return tasks.get(id);
     }
 
     @Override
     public Task getEpic(int id) {
+        Epic epic = epics.get(id);
+
+        if (epic == null) {
+            throw new NotFoundException("Эпик с ID " + id + " не найден");
+        }
+
         historyManager.add(epics.get(id));
         return epics.get(id);
     }
 
     @Override
     public Task getSubtask(int id) {
+        Subtask subtask = subtasks.get(id);
+
+        if (subtask == null) {
+            throw new NotFoundException("Эпик с ID " + id + " не найден");
+        }
+
         historyManager.add(subtasks.get(id));
         return subtasks.get(id);
     }
@@ -229,7 +248,10 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public List<Subtask> getSubtasks(int idEpic) {
         Epic epic = epics.get(idEpic);
-        if (epic == null) return new ArrayList<>();
+
+        if (epic == null) {
+            throw new NotFoundException("Эпик с ID " + idEpic + " не найден");
+        }
 
         return epic.getSubtasksInEpic().stream()
                 .map(subtasks::get)
