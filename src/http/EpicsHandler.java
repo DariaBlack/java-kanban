@@ -34,6 +34,12 @@ public class EpicsHandler extends BaseHttpHandler {
         try {
             InputStreamReader inputStreamReader = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
             Epic epic = gson.fromJson(inputStreamReader, Epic.class);
+
+            if (!taskManager.addTaskPriority(epic)) {
+                sendHasInteractions(exchange);
+                return;
+            }
+
             taskManager.addEpic(epic);
             sendText(exchange, "Эпик успешно добавлен", 201);
         } catch (Exception e) {

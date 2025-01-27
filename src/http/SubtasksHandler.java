@@ -9,7 +9,6 @@ import model.Subtask;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 public class SubtasksHandler extends BaseHttpHandler {
     private final TaskManager tasksManager;
@@ -35,6 +34,12 @@ public class SubtasksHandler extends BaseHttpHandler {
         try {
             InputStreamReader inputStreamReader = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
             Subtask subtask = gson.fromJson(inputStreamReader, Subtask.class);
+
+            if (!tasksManager.addTaskPriority(subtask)) {
+                sendHasInteractions(exchange);
+                return;
+            }
+
             tasksManager.addSubtask(subtask);
             sendText(exchange, "Подзадача успешно добавлена", 201);
         } catch (Exception e) {

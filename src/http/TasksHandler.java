@@ -35,6 +35,11 @@ public class TasksHandler extends BaseHttpHandler {
         try {
             InputStreamReader inputStreamReader = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
             Task task = gson.fromJson(inputStreamReader, Task.class);
+
+            if (!taskManager.addTaskPriority(task)) {
+                sendHasInteractions(exchange);
+                return;
+            }
             taskManager.addTask(task);
             sendText(exchange, "Задача успешно добавлена", 201);
         } catch (Exception e) {

@@ -50,11 +50,7 @@ public class InMemoryTaskManager implements TaskManager {
                     return !(startTime.isAfter(setEndTime) || endTime.isBefore(setStartTime));
                 });
 
-        if (isOverlapping) {
-            throw new TimeOverlapException("Время задачи пересекается с существующей задачей");
-        }
-
-        return true;
+        return !isOverlapping;
     }
 
     public ArrayList<Task> getPrioritizedTasks() {
