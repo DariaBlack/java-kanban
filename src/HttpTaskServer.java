@@ -25,5 +25,12 @@ public class HttpTaskServer {
         server.createContext("/prioritized", new PrioritizedHandler());
     }
 
+    public void start() {
+        server.start();
+        System.out.println("Сервер начал работу на порту " + PORT + "!");
+    }
 
+    public static void main(String[] args) throws IOException {
+        new HttpTaskServer().start();
+    }
 }
