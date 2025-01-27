@@ -143,11 +143,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void addTask(Task task) {
-        if (addTaskPriority(task)) {
             task.setId(nextId++);
             tasks.put(task.getId(), task);
             sortedTask.add(task);
-        }
     }
 
     @Override
@@ -158,7 +156,6 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void addSubtask(Subtask subtask) {
-        if (addTaskPriority(subtask)) {
             Epic epic = epics.get(subtask.getIdEpic());
 
             if (epic == null) {
@@ -170,7 +167,6 @@ public class InMemoryTaskManager implements TaskManager {
             sortedTask.add(subtask);
             epic.getSubtasksInEpic().add(subtask.getId());
             epic.updateStatus(getSubtasks(epic.getId()));
-        }
     }
 
     @Override
