@@ -3,6 +3,7 @@ import com.google.gson.GsonBuilder;
 import com.sun.net.httpserver.HttpServer;
 import controllers.Managers;
 import controllers.interfaces.TaskManager;
+import http.*;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -18,11 +19,11 @@ public class HttpTaskServer {
         this.taskManager = Managers.getDefault();
         this.gson = new GsonBuilder().setPrettyPrinting().create();
 
-        server.createContext("/tasks", new TasksHandler());
-        server.createContext("/subtasks", new SubtasksHandler());
-        server.createContext("/epics", new EpicsHandler());
-        server.createContext("/History", new HistoryHandler());
-        server.createContext("/prioritized", new PrioritizedHandler());
+        server.createContext("/tasks", new TasksHandler(taskManager, gson));
+        server.createContext("/subtasks", new SubtasksHandler(taskManager, gson));
+        server.createContext("/epics", new EpicsHandler(taskManager, gson));
+        server.createContext("/History", new HistoryHandler(taskManager, gson));
+        server.createContext("/prioritized", new PrioritizedHandler(taskManager, gson));
     }
 
     public void start() {
