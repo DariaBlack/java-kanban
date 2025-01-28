@@ -1,12 +1,12 @@
 package controllers;
 
+import controllers.exceptions.NotFoundException;
 import controllers.interfaces.TaskManager;
 import model.*;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDateTime;
 import java.util.Arrays;
 
 public class InMemoryTaskManagerTest {
@@ -71,17 +71,22 @@ public class InMemoryTaskManagerTest {
     // проверка на то, что удаляемые подзадачи не должны хранить внутри себя старые id
     @Test
     void shouldBeNullWhenSubtaskRemoved() {
+        taskManager.addEpic(epic1);
         taskManager.addSubtask(subtask1);
         taskManager.addSubtask(subtask2);
-        epic1.getSubtasksInEpic().add(subtask1.getId());
-        epic1.getSubtasksInEpic().add(subtask2.getId());
-        epic1.updateStatus(Arrays.asList(subtask1, subtask2));
-        taskManager.addEpic(epic1);
 
         taskManager.deleteSubtask(subtask1.getId());
 
-        assertNull(taskManager.getSubtask(subtask1.getId()));
+        try {
+            taskManager.getSubtask(subtask1.getId());
+            fail("Ожидалось исключение NotFoundException");
+        } catch (NotFoundException e) {
+            // Ожидаемое поведение
+        }
+
+        assertFalse(epic1.getSubtasksInEpic().contains(subtask1.getId()), "Подзадача не должна оставаться в эпике после удаления");
     }
+
 
     // проверка на то, что внутри эпиков не должно оставаться неактуальных id подзадач
     @Test
