@@ -3,7 +3,6 @@ package controllers;
 import controllers.exceptions.NotFoundException;
 import controllers.interfaces.HistoryManager;
 import controllers.interfaces.TaskManager;
-import controllers.exceptions.TimeOverlapException;
 import model.*;
 
 import java.time.LocalDateTime;
