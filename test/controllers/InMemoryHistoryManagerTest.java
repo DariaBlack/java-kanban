@@ -1,12 +1,12 @@
 package controllers;
 
+import controllers.exceptions.NotFoundException;
 import controllers.interfaces.HistoryManager;
 import controllers.interfaces.TaskManager;
 import model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -53,11 +53,17 @@ class InMemoryHistoryManagerTest {
     void shouldNotBeAddedTaskWithNonExistIDToHistory() {
         taskManager.addTask(task1);
         historyManager.add(task1);
-        taskManager.getTask(555);
 
-        ArrayList<Task> history = (ArrayList<Task>) taskManager.getHistory();
+        try {
+            taskManager.getTask(555);
+        } catch (NotFoundException e) {
+            // Ожидаемое поведение, ничего не делаем
+        }
+
+        List<Task> history = taskManager.getHistory();
         assertFalse(history.contains(null), "История задач не должна содержать null-задач");
     }
+
 
     // проверка на корректность работы двусвязного списка - добавление
     @Test

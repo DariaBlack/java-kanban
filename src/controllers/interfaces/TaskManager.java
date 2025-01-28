@@ -43,7 +43,11 @@ public interface TaskManager {
 
     void deleteSubtask(int id);
 
+    boolean addTaskPriority(Task task);
+
     List<Subtask> getSubtasks(int idEpic);
 
     List<Task> getHistory();
+
+    List<Task> getPrioritizedTasks();
 }
