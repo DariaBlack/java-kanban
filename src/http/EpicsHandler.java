@@ -19,7 +19,8 @@ public class EpicsHandler extends BaseHttpHandler {
         this.gson = gson;
     }
 
-    private void handleGetEpics(HttpExchange exchange) throws IOException {
+    @Override
+    protected void processGet(HttpExchange exchange) throws IOException {
         try {
             String response = gson.toJson(taskManager.getEpics());
             sendText(exchange, response, 200);
@@ -30,7 +31,8 @@ public class EpicsHandler extends BaseHttpHandler {
         }
     }
 
-    private void handlePostEpic(HttpExchange exchange) throws IOException {
+    @Override
+    protected void processPost(HttpExchange exchange) throws IOException {
         try {
             InputStreamReader inputStreamReader = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
             Epic epic = gson.fromJson(inputStreamReader, Epic.class);
@@ -47,31 +49,13 @@ public class EpicsHandler extends BaseHttpHandler {
         }
     }
 
-    private void handleDeleteEpics(HttpExchange exchange) throws IOException {
+    @Override
+    protected void processDelete(HttpExchange exchange) throws IOException {
         try {
             taskManager.deleteAllEpics();
             sendText(exchange, "Все эпики успешно удалены", 200);
         } catch (Exception e) {
             sendText(exchange, "Internal Server Error", 500);
-        }
-    }
-
-    @Override
-    public void handle(HttpExchange exchange) throws IOException {
-        String method = exchange.getRequestMethod();
-
-        switch (method) {
-            case "GET":
-                handleGetEpics(exchange);
-                break;
-            case "POST":
-                handlePostEpic(exchange);
-                break;
-            case "DELETE":
-                handleDeleteEpics(exchange);
-                break;
-            default:
-                sendText(exchange, "Неизвестный метод", 405);
         }
     }
 }

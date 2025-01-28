@@ -16,7 +16,8 @@ public class PrioritizedHandler extends BaseHttpHandler {
         this.gson = gson;
     }
 
-    private void handleGetPrioritizedTasks(HttpExchange exchange) throws IOException {
+    @Override
+    protected void processGet(HttpExchange exchange) throws IOException {
         try {
             String response = gson.toJson(taskManager.getPrioritizedTasks());
             sendText(exchange, response, 200);
@@ -24,16 +25,6 @@ public class PrioritizedHandler extends BaseHttpHandler {
             sendNotFound(exchange);
         } catch (Exception e) {
             sendText(exchange, "Internal Server Error", 500);
-        }
-    }
-
-    @Override
-    public void handle(HttpExchange exchange) throws IOException {
-        String method = exchange.getRequestMethod();
-        if ("GET".equals(method)) {
-            handleGetPrioritizedTasks(exchange);
-        } else {
-            sendText(exchange, "Неизвестный метод", 405);
         }
     }
 }

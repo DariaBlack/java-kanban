@@ -19,7 +19,8 @@ public class TasksHandler extends BaseHttpHandler {
         this.gson = gson;
     }
 
-    private void handleGetTasks(HttpExchange exchange) throws IOException {
+    @Override
+    protected void processGet(HttpExchange exchange) throws IOException {
         try {
             String response = gson.toJson(taskManager.getTasks());
             sendText(exchange, response, 200);
@@ -30,7 +31,8 @@ public class TasksHandler extends BaseHttpHandler {
         }
     }
 
-    private void handlePostTask(HttpExchange exchange) throws IOException {
+    @Override
+    protected void processPost(HttpExchange exchange) throws IOException {
         try {
             InputStreamReader inputStreamReader = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
             Task task = gson.fromJson(inputStreamReader, Task.class);
@@ -46,31 +48,13 @@ public class TasksHandler extends BaseHttpHandler {
         }
     }
 
-    private void handleDeleteTasks(HttpExchange exchange) throws IOException {
+    @Override
+    protected void processDelete(HttpExchange exchange) throws IOException {
         try {
             taskManager.deleteAllTasks();
             sendText(exchange, "Все задачи успешно удалены", 200);
         } catch (Exception e) {
             sendText(exchange, "Internal Server Error", 500);
-        }
-    }
-
-    @Override
-    public void handle(HttpExchange exchange) throws IOException {
-        String method = exchange.getRequestMethod();
-
-        switch (method) {
-            case "GET":
-                handleGetTasks(exchange);
-                break;
-            case "POST":
-                handlePostTask(exchange);
-                break;
-            case "DELETE":
-                handleDeleteTasks(exchange);
-                break;
-            default:
-                sendText(exchange, "Неизвестный метод", 405);
         }
     }
 }

@@ -19,7 +19,8 @@ public class SubtasksHandler extends BaseHttpHandler {
         this.gson = gson;
     }
 
-    private void handleGetSubtasks(HttpExchange exchange) throws IOException {
+    @Override
+    protected void processGet(HttpExchange exchange) throws IOException {
         try {
             String response = gson.toJson(tasksManager.getSubtasks());
             sendText(exchange, response, 200);
@@ -30,7 +31,8 @@ public class SubtasksHandler extends BaseHttpHandler {
         }
     }
 
-    private void handlePostSubtask(HttpExchange exchange) throws IOException {
+    @Override
+    protected void processPost(HttpExchange exchange) throws IOException {
         try {
             InputStreamReader inputStreamReader = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
             Subtask subtask = gson.fromJson(inputStreamReader, Subtask.class);
@@ -47,31 +49,13 @@ public class SubtasksHandler extends BaseHttpHandler {
         }
     }
 
-    private void handleDeleteSubtasks(HttpExchange exchange) throws IOException {
+    @Override
+    protected void processDelete(HttpExchange exchange) throws IOException {
         try {
             tasksManager.deleteAllSubtasks();
             sendText(exchange, "Все подзадачи успешно удалены", 200);
         } catch (Exception e) {
             sendText(exchange, "Internal Server Error", 500);
-        }
-    }
-
-    @Override
-    public void handle(HttpExchange exchange) throws IOException {
-        String method = exchange.getRequestMethod();
-
-        switch (method) {
-            case "GET":
-                handleGetSubtasks(exchange);
-                break;
-            case "POST":
-                handlePostSubtask(exchange);
-                break;
-            case "DELETE":
-                handleDeleteSubtasks(exchange);
-                break;
-            default:
-                sendText(exchange, "Неизвестный метод", 405);
         }
     }
 }
